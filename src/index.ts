@@ -1,7 +1,7 @@
 import { ChatCompletionRequestMessage } from "openai"
 import { Message, Whatsapp, create } from "venom-bot"
 
-import { openai } from "./lib/openai"
+import { completion } from "./lib/openai"
 import { redis } from "./lib/redis"
 
 import { initPrompt } from "./utils/initPrompt"
@@ -18,18 +18,7 @@ interface CustomerChat {
   orderSummary?: string
 }
 
-async function completion(
-  messages: ChatCompletionRequestMessage[]
-): Promise<string | undefined> {
-  const completion = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    temperature: 0,
-    max_tokens: 256,
-    messages,
-  })
-
-  return completion.data.choices[0].message?.content
-}
+const serviceNumber = "5543996587080@c.us"
 
 create({
   session: "food-gpt",
@@ -92,10 +81,7 @@ async function start(client: Whatsapp) {
 
     await client.sendText(message.from, content)
 
-    if (
-      customerChat.status === "open" &&
-      content.match(customerChat.orderCode)
-    ) {
+    if (content.includes("Atendimento encerrado!")){
       customerChat.status = "closed"
 
       customerChat.messages.push({
@@ -104,14 +90,14 @@ async function start(client: Whatsapp) {
           "Gere um resumo de pedido para registro no sistema da pizzaria, quem está solicitando é um robô.",
       })
 
-      console.debug(`📦 ########### ${customerChat}`)
-
       const content =
         (await completion(customerChat.messages)) || "Não entendi..."
 
       console.debug(customerPhone, "📦", content)
 
       customerChat.orderSummary = content
+
+      await client.sendText(serviceNumber, content)
     }
 
     redis.set(customerKey, JSON.stringify(customerChat))
