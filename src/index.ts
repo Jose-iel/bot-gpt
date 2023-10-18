@@ -6,7 +6,6 @@ import { redis } from "./lib/redis"
 
 import { initPrompt } from "./utils/initPrompt"
 
-// https://wa.me/+5512982754592
 interface CustomerChat {
   status?: "open" | "closed"
   orderCode: string
@@ -104,6 +103,8 @@ async function start(client: Whatsapp) {
         content:
           "Gere um resumo de pedido para registro no sistema da pizzaria, quem está solicitando é um robô.",
       })
+
+      console.debug(`📦 ########### ${customerChat}`)
 
       const content =
         (await completion(customerChat.messages)) || "Não entendi..."
