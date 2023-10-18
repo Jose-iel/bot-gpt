@@ -1,4 +1,4 @@
-import { prompt } from "../prompts/pizzaAgent"
+import { prompt } from "../prompts/agentPrompt"
 
 export function initPrompt(storeName: string, orderCode: string): string {
   return prompt
